@@ -11,84 +11,104 @@ body {
   background: #111;
   color: #fff;
   font-family: system-ui, sans-serif;
-  padding: 14px;
+  padding: 12px;
 }
 
 h1 {
   text-align: center;
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  gap: 4px;
 }
 
 .weekday {
   text-align: center;
-  color: #d6a85c;
   font-size: 12px;
   padding: 6px 0;
+  color: #ccc;
 }
 
+.sun-text { color: #ff6b6b; }
+.sat-text { color: #4da3ff; }
+
 .day {
-  min-height: 92px;
+  min-height: 95px;
   background: #1f1f1f;
-  border-radius: 12px;
-  padding: 6px;
-  font-size: 12px;
+  border-radius: 10px;
+  padding: 4px;
+  font-size: 10px;
 }
 
 .date {
+  font-size: 11px;
   color: #aaa;
-  font-size: 11px;
-  margin-bottom: 6px;
 }
 
-.main {
-  font-weight: 700;
+.sun .date { color: #ff6b6b; }
+.sat .date { color: #4da3ff; }
+.holiday .date { color: #ff6b6b; }
+
+.meal {
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+.meal span {
+  display: inline-block;
+  width: 18px;
+  color: #d6a85c;
+}
+
+.breakfast, .lunch {
+  color: #aaa;
+}
+
+.dinner {
   font-size: 13px;
-  line-height: 1.35;
-}
-
-.sub {
+  font-weight: 700;
   margin-top: 4px;
-  color: #ccc;
-  font-size: 11px;
-  line-height: 1.35;
+  background: rgba(255, 184, 77, 0.1);
+  border-left: 3px solid #ffb84d;
+  padding-left: 4px;
+  border-radius: 4px;
 }
 
-.today {
-  outline: 2px solid #d6a85c;
-}
-  .sat .date {
-  color: #4da3ff;
-}
-
-.sun .date {
-  color: #ff6b6b;
-}
-
-.holiday {
-  background: rgba(255, 0, 0, 0.15);
-}
-  .sat .date,
-.sat-text {
-  color: #4da3ff;
-}
-
-.sun .date,
-.sun-text {
-  color: #ff6b6b;
-}
-
-.holiday .date {
-  color: #ff6b6b;
+.memo {
+  font-size: 9px;
+  color: #777;
+  margin-top: 2px;
 }
 
 .empty {
-  min-height: 92px;
+  min-height: 95px;
+}
+
+/* 週メモ */
+.week-notes {
+  margin-top: 20px;
+}
+
+.note-card {
+  background: #1f1f1f;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.note-card h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: #d6a85c;
+}
+
+.note-card p {
+  margin: 0;
+  font-size: 12px;
+  color: #ccc;
 }
 </style>
 </head>
@@ -97,42 +117,66 @@ h1 {
 
 <h1>5月のごはん</h1>
 
-<div class="calendar" id="calendar">
-  <div class="weekday">日</div>
-  <div class="weekday">月</div>
-  <div class="weekday">火</div>
-  <div class="weekday">水</div>
-  <div class="weekday">木</div>
-  <div class="weekday">金</div>
-  <div class="weekday">土</div>
-</div>
+<div class="calendar" id="calendar"></div>
+
+<section class="week-notes">
+  <div class="note-card">
+    <h3>毎週水曜</h3>
+    <p>カレー・ハヤシライス・シチュー</p>
+  </div>
+  <div class="note-card">
+    <h3>毎週金曜</h3>
+    <p>冷蔵庫整理・余りものOK</p>
+  </div>
+</section>
 
 <script>
 const year = 2026;
 const month = 5;
 
-const menus = {
-  "2026-05-19": { main: "ブリの照り焼き", sub: "味噌汁" },
-  "2026-05-20": { main: "鶏もも塩焼き", sub: "サラダ・スープ" },
-  "2026-05-21": { main: "焼きそば", sub: "冷奴" }
-};
+// ←ここにGoogleシートCSV URL
+const CSV_URL = "ここにCSVのURL";
 
 const holidays = {};
+let menus = {};
 
 fetch("https://holidays-jp.github.io/api/v1/date.json")
   .then(res => res.json())
   .then(data => {
     Object.assign(holidays, data);
+    return fetch(CSV_URL);
+  })
+  .then(res => res.text())
+  .then(csv => {
+    menus = csvToMenus(csv);
     generateCalendar();
   })
-  .catch(() => {
-    generateCalendar();
+  .catch(() => generateCalendar());
+
+function csvToMenus(csv) {
+  const lines = csv.trim().split("\n").slice(1);
+  const result = {};
+
+  lines.forEach(line => {
+    const cols = line.split(",");
+
+    const date = cols[0]?.trim();
+    const breakfast = cols[1]?.trim();
+    const lunch = cols[2]?.trim();
+    const dinner = cols[3]?.trim();
+    const memo = cols[4]?.trim();
+
+    if (!date) return;
+
+    result[date] = { breakfast, lunch, dinner, memo };
   });
+
+  return result;
+}
 
 function generateCalendar() {
   const calendar = document.getElementById("calendar");
 
-  // いったん曜日ヘッダーごと作り直す
   calendar.innerHTML = `
     <div class="weekday sun-text">日</div>
     <div class="weekday">月</div>
@@ -168,8 +212,20 @@ function generateCalendar() {
     calendar.innerHTML += `
       <div class="day ${dayClass} ${isHoliday ? "holiday" : ""}">
         <div class="date">${date}</div>
-        <div class="main">${menu ? menu.main : ""}</div>
-        <div class="sub">${menu ? menu.sub : ""}</div>
+
+        <div class="meal breakfast">
+          <span>朝</span>${menu?.breakfast || ""}
+        </div>
+
+        <div class="meal lunch">
+          <span>昼</span>${menu?.lunch || ""}
+        </div>
+
+        <div class="meal dinner">
+          <span>夜</span>${menu?.dinner || ""}
+        </div>
+
+        <div class="memo">${menu?.memo || ""}</div>
       </div>
     `;
   }
