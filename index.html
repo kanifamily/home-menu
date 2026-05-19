@@ -3,70 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>今月のごはん</title>
+<title>月間ごはんメニュー</title>
 
 <style>
 body {
-  margin:0;
-  background:#111;
-  color:#fff;
-  font-family:sans-serif;
-  padding:16px;
+  margin: 0;
+  background: #111;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  padding: 14px;
 }
 
 h1 {
-  text-align:center;
-  margin-bottom:20px;
+  text-align: center;
+  font-size: 24px;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.weekday {
+  text-align: center;
+  color: #d6a85c;
+  font-size: 12px;
+  padding: 6px 0;
 }
 
 .day {
-  padding:12px;
-  border-bottom:1px solid #333;
+  min-height: 92px;
+  background: #1f1f1f;
+  border-radius: 12px;
+  padding: 6px;
+  font-size: 12px;
 }
 
 .date {
-  font-size:14px;
-  color:#aaa;
+  color: #aaa;
+  font-size: 11px;
+  margin-bottom: 6px;
 }
 
 .main {
-  font-size:20px;
-  font-weight:bold;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .sub {
-  font-size:14px;
-  color:#ccc;
+  margin-top: 4px;
+  color: #ccc;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.today {
+  outline: 2px solid #d6a85c;
 }
 </style>
 </head>
 
 <body>
 
-<h1>5月のメニュー</h1>
-<div id="menu"></div>
+<h1>5月のごはん</h1>
+
+<div class="calendar" id="calendar">
+  <div class="weekday">日</div>
+  <div class="weekday">月</div>
+  <div class="weekday">火</div>
+  <div class="weekday">水</div>
+  <div class="weekday">木</div>
+  <div class="weekday">金</div>
+  <div class="weekday">土</div>
+</div>
 
 <script>
-const data = [
-  {date:"5/19(火)", main:"ブリの照り焼き", sub:"味噌汁・ほうれん草"},
-  {date:"5/20(水)", main:"鶏もも塩焼き", sub:"サラダ・スープ"},
-  {date:"5/21(木)", main:"焼きそば", sub:"冷奴"},
-  {date:"5/22(金)", main:"カレー", sub:"サラダ"},
-  {date:"5/23(土)", main:"餃子", sub:"ビール"},
-  {date:"5/24(日)", main:"鍋", sub:"ごはん"}
-];
+const year = 2026;
+const month = 5;
 
-const menu = document.getElementById("menu");
+const menus = {
+  "2026-05-19": {
+    main: "ブリの照り焼き",
+    sub: "味噌汁"
+  },
+  "2026-05-20": {
+    main: "鶏もも塩焼き",
+    sub: "サラダ・スープ"
+  },
+  "2026-05-21": {
+    main: "焼きそば",
+    sub: "冷奴"
+  },
+  "2026-05-22": {
+    main: "カレー",
+    sub: "サラダ"
+  },
+  "2026-05-23": {
+    main: "餃子",
+    sub: "中華スープ"
+  },
+  "2026-05-24": {
+    main: "鍋",
+    sub: "ごはん"
+  }
+};
 
-data.forEach(d => {
-  menu.innerHTML += `
-    <div class="day">
-      <div class="date">${d.date}</div>
-      <div class="main">${d.main}</div>
-      <div class="sub">${d.sub}</div>
+const calendar = document.getElementById("calendar");
+
+const firstDay = new Date(year, month - 1, 1).getDay();
+const lastDate = new Date(year, month, 0).getDate();
+
+for (let i = 0; i < firstDay; i++) {
+  calendar.innerHTML += `<div></div>`;
+}
+
+for (let date = 1; date <= lastDate; date++) {
+  const key = `${year}-${String(month).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+  const menu = menus[key];
+
+  const today = new Date();
+  const isToday =
+    today.getFullYear() === year &&
+    today.getMonth() + 1 === month &&
+    today.getDate() === date;
+
+  calendar.innerHTML += `
+    <div class="day ${isToday ? "today" : ""}">
+      <div class="date">${date}</div>
+      <div class="main">${menu ? menu.main : ""}</div>
+      <div class="sub">${menu ? menu.sub : ""}</div>
     </div>
   `;
-});
+}
 </script>
 
 </body>
