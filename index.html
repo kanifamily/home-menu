@@ -62,6 +62,17 @@ h1 {
 .today {
   outline: 2px solid #d6a85c;
 }
+  .sat .date {
+  color: #4da3ff;
+}
+
+.sun .date {
+  color: #ff6b6b;
+}
+
+.holiday {
+  background: rgba(255, 0, 0, 0.15);
+}
 </style>
 </head>
 
@@ -119,23 +130,46 @@ for (let i = 0; i < firstDay; i++) {
   calendar.innerHTML += `<div></div>`;
 }
 
-for (let date = 1; date <= lastDate; date++) {
-  const key = `${year}-${String(month).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
-  const menu = menus[key];
+const holidays = {};
 
-  const today = new Date();
-  const isToday =
-    today.getFullYear() === year &&
-    today.getMonth() + 1 === month &&
-    today.getDate() === date;
+fetch("https://holidays-jp.github.io/api/v1/date.json")
+  .then(res => res.json())
+  .then(data => {
+    Object.assign(holidays, data);
+    generateCalendar();
+  });
 
-  calendar.innerHTML += `
-    <div class="day ${isToday ? "today" : ""}">
-      <div class="date">${date}</div>
-      <div class="main">${menu ? menu.main : ""}</div>
-      <div class="sub">${menu ? menu.sub : ""}</div>
-    </div>
-  `;
+function generateCalendar() {
+  const calendar = document.getElementById("calendar");
+
+  const firstDay = new Date(year, month - 1, 1).getDay();
+  const lastDate = new Date(year, month, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    calendar.innerHTML += `<div></div>`;
+  }
+
+  for (let date = 1; date <= lastDate; date++) {
+    const d = new Date(year, month - 1, date);
+    const day = d.getDay();
+
+    const key = `${year}-${String(month).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+    const menu = menus[key];
+
+    let dayClass = "";
+    if (day === 0) dayClass = "sun";
+    if (day === 6) dayClass = "sat";
+
+    const isHoliday = holidays[key];
+
+    calendar.innerHTML += `
+      <div class="day ${dayClass} ${isHoliday ? "holiday" : ""}">
+        <div class="date">${date}</div>
+        <div class="main">${menu ? menu.main : ""}</div>
+        <div class="sub">${menu ? menu.sub : ""}</div>
+      </div>
+    `;
+  }
 }
 </script>
 
