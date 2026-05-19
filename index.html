@@ -73,6 +73,23 @@ h1 {
 .holiday {
   background: rgba(255, 0, 0, 0.15);
 }
+  .sat .date,
+.sat-text {
+  color: #4da3ff;
+}
+
+.sun .date,
+.sun-text {
+  color: #ff6b6b;
+}
+
+.holiday .date {
+  color: #ff6b6b;
+}
+
+.empty {
+  min-height: 92px;
+}
 </style>
 </head>
 
@@ -95,40 +112,10 @@ const year = 2026;
 const month = 5;
 
 const menus = {
-  "2026-05-19": {
-    main: "ブリの照り焼き",
-    sub: "味噌汁"
-  },
-  "2026-05-20": {
-    main: "鶏もも塩焼き",
-    sub: "サラダ・スープ"
-  },
-  "2026-05-21": {
-    main: "焼きそば",
-    sub: "冷奴"
-  },
-  "2026-05-22": {
-    main: "カレー",
-    sub: "サラダ"
-  },
-  "2026-05-23": {
-    main: "餃子",
-    sub: "中華スープ"
-  },
-  "2026-05-24": {
-    main: "鍋",
-    sub: "ごはん"
-  }
+  "2026-05-19": { main: "ブリの照り焼き", sub: "味噌汁" },
+  "2026-05-20": { main: "鶏もも塩焼き", sub: "サラダ・スープ" },
+  "2026-05-21": { main: "焼きそば", sub: "冷奴" }
 };
-
-const calendar = document.getElementById("calendar");
-
-const firstDay = new Date(year, month - 1, 1).getDay();
-const lastDate = new Date(year, month, 0).getDate();
-
-for (let i = 0; i < firstDay; i++) {
-  calendar.innerHTML += `<div></div>`;
-}
 
 const holidays = {};
 
@@ -137,23 +124,39 @@ fetch("https://holidays-jp.github.io/api/v1/date.json")
   .then(data => {
     Object.assign(holidays, data);
     generateCalendar();
+  })
+  .catch(() => {
+    generateCalendar();
   });
 
 function generateCalendar() {
   const calendar = document.getElementById("calendar");
 
+  // いったん曜日ヘッダーごと作り直す
+  calendar.innerHTML = `
+    <div class="weekday sun-text">日</div>
+    <div class="weekday">月</div>
+    <div class="weekday">火</div>
+    <div class="weekday">水</div>
+    <div class="weekday">木</div>
+    <div class="weekday">金</div>
+    <div class="weekday sat-text">土</div>
+  `;
+
   const firstDay = new Date(year, month - 1, 1).getDay();
   const lastDate = new Date(year, month, 0).getDate();
 
   for (let i = 0; i < firstDay; i++) {
-    calendar.innerHTML += `<div></div>`;
+    calendar.innerHTML += `<div class="empty"></div>`;
   }
 
   for (let date = 1; date <= lastDate; date++) {
     const d = new Date(year, month - 1, date);
     const day = d.getDay();
 
-    const key = `${year}-${String(month).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+    const key =
+      `${year}-${String(month).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+
     const menu = menus[key];
 
     let dayClass = "";
