@@ -1,129 +1,73 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>今日のごはん</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今月のごはん</title>
 
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: #111;
-      color: #fff;
-      font-family: system-ui, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
+<style>
+body {
+  margin:0;
+  background:#111;
+  color:#fff;
+  font-family:sans-serif;
+  padding:16px;
+}
 
-    .card {
-      width: 100%;
-      max-width: 420px;
-      background: #1f1f1f;
-      border-radius: 28px;
-      padding: 32px 24px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.4);
-      text-align: center;
-    }
+h1 {
+  text-align:center;
+  margin-bottom:20px;
+}
 
-    .label {
-      color: #d6a85c;
-      font-size: 18px;
-      margin-bottom: 16px;
-      letter-spacing: .08em;
-    }
+.day {
+  padding:12px;
+  border-bottom:1px solid #333;
+}
 
-    .day {
-      font-size: 22px;
-      color: #aaa;
-      margin-bottom: 12px;
-    }
+.date {
+  font-size:14px;
+  color:#aaa;
+}
 
-    .main {
-      font-size: 42px;
-      font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 18px;
-    }
+.main {
+  font-size:20px;
+  font-weight:bold;
+}
 
-    .sub {
-      font-size: 20px;
-      color: #ddd;
-      line-height: 1.6;
-    }
-
-    .memo {
-      margin-top: 24px;
-      font-size: 16px;
-      color: #999;
-    }
-  </style>
+.sub {
+  font-size:14px;
+  color:#ccc;
+}
+</style>
 </head>
 
 <body>
-  <div class="card">
-    <div class="label">TODAY'S MENU</div>
-    <div class="day" id="day"></div>
-    <div class="main" id="main"></div>
-    <div class="sub" id="sub"></div>
-    <div class="memo" id="memo"></div>
-  </div>
 
-  <script>
-    const menus = [
-      {
-        day: "日曜日",
-        main: "鍋",
-        sub: "ごはん・残り野菜",
-        memo: "冷蔵庫整理の日"
-      },
-      {
-        day: "月曜日",
-        main: "鶏の照り焼き",
-        sub: "味噌汁・サラダ",
-        memo: "定番でラクに"
-      },
-      {
-        day: "火曜日",
-        main: "鮭のホイル焼き",
-        sub: "冷奴・ごはん",
-        memo: "魚の日"
-      },
-      {
-        day: "水曜日",
-        main: "そぼろ丼",
-        sub: "味噌汁",
-        memo: "時短の日"
-      },
-      {
-        day: "木曜日",
-        main: "焼きそば",
-        sub: "サラダ",
-        memo: "麺の日"
-      },
-      {
-        day: "金曜日",
-        main: "カレー",
-        sub: "サラダ",
-        memo: "多めに作る"
-      },
-      {
-        day: "土曜日",
-        main: "餃子",
-        sub: "ビール・おつまみ",
-        memo: "楽しむ日"
-      }
-    ];
+<h1>5月のメニュー</h1>
+<div id="menu"></div>
 
-    const today = new Date().getDay();
-    const menu = menus[today];
+<script>
+const data = [
+  {date:"5/19(火)", main:"ブリの照り焼き", sub:"味噌汁・ほうれん草"},
+  {date:"5/20(水)", main:"鶏もも塩焼き", sub:"サラダ・スープ"},
+  {date:"5/21(木)", main:"焼きそば", sub:"冷奴"},
+  {date:"5/22(金)", main:"カレー", sub:"サラダ"},
+  {date:"5/23(土)", main:"餃子", sub:"ビール"},
+  {date:"5/24(日)", main:"鍋", sub:"ごはん"}
+];
 
-    document.getElementById("day").textContent = menu.day;
-    document.getElementById("main").textContent = menu.main;
-    document.getElementById("sub").textContent = menu.sub;
-    document.getElementById("memo").textContent = menu.memo;
-  </script>
+const menu = document.getElementById("menu");
+
+data.forEach(d => {
+  menu.innerHTML += `
+    <div class="day">
+      <div class="date">${d.date}</div>
+      <div class="main">${d.main}</div>
+      <div class="sub">${d.sub}</div>
+    </div>
+  `;
+});
+</script>
+
 </body>
 </html>
