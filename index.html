@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>今日のごはん</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #111;
+      color: #fff;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #1f1f1f;
+      border-radius: 28px;
+      padding: 32px 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      text-align: center;
+    }
+
+    .label {
+      color: #d6a85c;
+      font-size: 18px;
+      margin-bottom: 16px;
+      letter-spacing: .08em;
+    }
+
+    .day {
+      font-size: 22px;
+      color: #aaa;
+      margin-bottom: 12px;
+    }
+
+    .main {
+      font-size: 42px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 18px;
+    }
+
+    .sub {
+      font-size: 20px;
+      color: #ddd;
+      line-height: 1.6;
+    }
+
+    .memo {
+      margin-top: 24px;
+      font-size: 16px;
+      color: #999;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="label">TODAY'S MENU</div>
+    <div class="day" id="day"></div>
+    <div class="main" id="main"></div>
+    <div class="sub" id="sub"></div>
+    <div class="memo" id="memo"></div>
+  </div>
+
+  <script>
+    const menus = [
+      {
+        day: "日曜日",
+        main: "鍋",
+        sub: "ごはん・残り野菜",
+        memo: "冷蔵庫整理の日"
+      },
+      {
+        day: "月曜日",
+        main: "鶏の照り焼き",
+        sub: "味噌汁・サラダ",
+        memo: "定番でラクに"
+      },
+      {
+        day: "火曜日",
+        main: "鮭のホイル焼き",
+        sub: "冷奴・ごはん",
+        memo: "魚の日"
+      },
+      {
+        day: "水曜日",
+        main: "そぼろ丼",
+        sub: "味噌汁",
+        memo: "時短の日"
+      },
+      {
+        day: "木曜日",
+        main: "焼きそば",
+        sub: "サラダ",
+        memo: "麺の日"
+      },
+      {
+        day: "金曜日",
+        main: "カレー",
+        sub: "サラダ",
+        memo: "多めに作る"
+      },
+      {
+        day: "土曜日",
+        main: "餃子",
+        sub: "ビール・おつまみ",
+        memo: "楽しむ日"
+      }
+    ];
+
+    const today = new Date().getDay();
+    const menu = menus[today];
+
+    document.getElementById("day").textContent = menu.day;
+    document.getElementById("main").textContent = menu.main;
+    document.getElementById("sub").textContent = menu.sub;
+    document.getElementById("memo").textContent = menu.memo;
+  </script>
+</body>
+</html>
