@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>月間ごはんメニュー</title>
+<title>週間ごはんメニュー</title>
 
 <style>
 body {
@@ -11,7 +11,7 @@ body {
   background: #111;
   color: #fff;
   font-family: system-ui, sans-serif;
-  padding: 12px;
+  padding: 14px;
 }
 
 h1 {
@@ -19,95 +19,106 @@ h1 {
   font-size: 22px;
 }
 
-.calendar {
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 14px 0;
+}
+
+button {
+  background: #2a2a2a;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+#weekTitle {
+  font-size: 15px;
+  color: #d6a85c;
+}
+
+.week {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 10px;
 }
-
-.weekday {
-  text-align: center;
-  font-size: 12px;
-  padding: 6px 0;
-  color: #ccc;
-}
-
-.sun-text { color: #ff6b6b; }
-.sat-text { color: #4da3ff; }
 
 .day {
-  min-height: 95px;
   background: #1f1f1f;
-  border-radius: 10px;
-  padding: 4px;
-  font-size: 10px;
+  border-radius: 14px;
+  padding: 12px;
 }
 
 .date {
-  font-size: 11px;
+  font-size: 14px;
   color: #aaa;
+  margin-bottom: 8px;
 }
 
-.sun .date { color: #ff6b6b; }
-.sat .date { color: #4da3ff; }
-.holiday .date { color: #ff6b6b; }
+.sun .date,
+.holiday .date {
+  color: #ff6b6b;
+}
+
+.sat .date {
+  color: #4da3ff;
+}
 
 .meal {
-  font-size: 10px;
-  margin-top: 2px;
+  font-size: 14px;
+  margin-top: 5px;
 }
 
 .meal span {
   display: inline-block;
-  width: 18px;
+  width: 28px;
   color: #d6a85c;
+  font-weight: 700;
 }
 
-.breakfast, .lunch {
+.breakfast,
+.lunch {
   color: #aaa;
 }
 
 .dinner {
-  font-size: 13px;
-  font-weight: 700;
-  margin-top: 4px;
+  font-size: 18px;
+  font-weight: 800;
+  margin-top: 8px;
   background: rgba(255, 184, 77, 0.1);
-  border-left: 3px solid #ffb84d;
-  padding-left: 4px;
-  border-radius: 4px;
+  border-left: 4px solid #ffb84d;
+  padding: 6px 8px;
+  border-radius: 6px;
 }
 
 .memo {
-  font-size: 9px;
-  color: #777;
-  margin-top: 2px;
+  font-size: 12px;
+  color: #888;
+  margin-top: 6px;
 }
 
-.empty {
-  min-height: 95px;
-}
-
-/* 週メモ */
 .week-notes {
-  margin-top: 20px;
+  margin-top: 22px;
 }
 
 .note-card {
   background: #1f1f1f;
-  border-radius: 10px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 12px;
   margin-bottom: 8px;
 }
 
 .note-card h3 {
   margin: 0 0 4px;
-  font-size: 13px;
+  font-size: 14px;
   color: #d6a85c;
 }
 
 .note-card p {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: #ccc;
 }
 </style>
@@ -115,14 +126,20 @@ h1 {
 
 <body>
 
-<h1>5月のごはん</h1>
+<h1>週間ごはんメニュー</h1>
 
-<div class="calendar" id="calendar"></div>
+<div class="controls">
+  <button onclick="changeWeek(-1)">← 前週</button>
+  <div id="weekTitle"></div>
+  <button onclick="changeWeek(1)">次週 →</button>
+</div>
+
+<div class="week" id="week"></div>
 
 <section class="week-notes">
   <div class="note-card">
     <h3>毎週水曜</h3>
-    <p>カレー・ハヤシライス・シチュー</p>
+    <p>カレー・ハヤシライス・シチューなど</p>
   </div>
   <div class="note-card">
     <h3>毎週金曜</h3>
@@ -131,27 +148,28 @@ h1 {
 </section>
 
 <script>
-const year = 2026;
-const month = 5;
+const CSV_URL = "ここにGoogleシートのCSV URL";
 
-// ←ここにGoogleシートCSV URL
-const CSV_URL = "ここにCSVのURL";
-
-const holidays = {};
 let menus = {};
+let holidays = {};
+let currentWeekOffset = 0;
+
+const weekNames = ["日", "月", "火", "水", "木", "金", "土"];
 
 fetch("https://holidays-jp.github.io/api/v1/date.json")
   .then(res => res.json())
   .then(data => {
-    Object.assign(holidays, data);
+    holidays = data;
     return fetch(CSV_URL);
   })
   .then(res => res.text())
   .then(csv => {
     menus = csvToMenus(csv);
-    generateCalendar();
+    renderWeek();
   })
-  .catch(() => generateCalendar());
+  .catch(() => {
+    renderWeek();
+  });
 
 function csvToMenus(csv) {
   const lines = csv.trim().split("\n").slice(1);
@@ -174,44 +192,53 @@ function csvToMenus(csv) {
   return result;
 }
 
-function generateCalendar() {
-  const calendar = document.getElementById("calendar");
+function getStartOfWeek(date) {
+  const d = new Date(date);
+  d.setDate(d.getDate() - d.getDay() + currentWeekOffset * 7);
+  return d;
+}
 
-  calendar.innerHTML = `
-    <div class="weekday sun-text">日</div>
-    <div class="weekday">月</div>
-    <div class="weekday">火</div>
-    <div class="weekday">水</div>
-    <div class="weekday">木</div>
-    <div class="weekday">金</div>
-    <div class="weekday sat-text">土</div>
-  `;
+function formatKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
 
-  const firstDay = new Date(year, month - 1, 1).getDay();
-  const lastDate = new Date(year, month, 0).getDate();
+function changeWeek(amount) {
+  currentWeekOffset += amount;
+  renderWeek();
+}
 
-  for (let i = 0; i < firstDay; i++) {
-    calendar.innerHTML += `<div class="empty"></div>`;
-  }
+function renderWeek() {
+  const weekEl = document.getElementById("week");
+  const titleEl = document.getElementById("weekTitle");
 
-  for (let date = 1; date <= lastDate; date++) {
-    const d = new Date(year, month - 1, date);
-    const day = d.getDay();
+  weekEl.innerHTML = "";
 
-    const key =
-      `${year}-${String(month).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+  const start = getStartOfWeek(new Date());
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
 
+  titleEl.textContent =
+    `${start.getMonth() + 1}/${start.getDate()}〜${end.getMonth() + 1}/${end.getDate()}`;
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+
+    const key = formatKey(d);
     const menu = menus[key];
+    const day = d.getDay();
+    const isHoliday = holidays[key];
 
     let dayClass = "";
     if (day === 0) dayClass = "sun";
     if (day === 6) dayClass = "sat";
 
-    const isHoliday = holidays[key];
-
-    calendar.innerHTML += `
+    weekEl.innerHTML += `
       <div class="day ${dayClass} ${isHoliday ? "holiday" : ""}">
-        <div class="date">${date}</div>
+        <div class="date">
+          ${d.getMonth() + 1}/${d.getDate()}（${weekNames[day]}）
+          ${isHoliday ? "・祝" : ""}
+        </div>
 
         <div class="meal breakfast">
           <span>朝</span>${menu?.breakfast || ""}
