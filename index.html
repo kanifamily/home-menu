@@ -121,6 +121,10 @@ button {
   font-size: 13px;
   color: #ccc;
 }
+  .today {
+  outline: 2px solid #ffb84d;
+  background: rgba(255, 184, 77, 0.08);
+}
 </style>
 </head>
 
@@ -201,6 +205,7 @@ function changeWeek(amount) {
 function renderWeek() {
   const weekEl = document.getElementById("week");
   const titleEl = document.getElementById("weekTitle");
+  const today = new Date();
 
   weekEl.innerHTML = "";
 
@@ -214,6 +219,10 @@ function renderWeek() {
   for (let i = 0; i < 7; i++) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
+    const isToday =
+  d.getFullYear() === today.getFullYear() &&
+  d.getMonth() === today.getMonth() &&
+  d.getDate() === today.getDate();
 
     const key = formatKey(d);
     const menu = menus[key];
@@ -225,7 +234,7 @@ function renderWeek() {
     if (day === 6) dayClass = "sat";
 
     weekEl.innerHTML += `
-      <div class="day ${dayClass} ${isHoliday ? "holiday" : ""}">
+      <div class="day ${dayClass} ${isHoliday ? "holiday" : ""} ${isToday ? "today" : ""}">
         <div class="date">
           ${d.getMonth() + 1}/${d.getDate()}（${weekNames[day]}）
           ${isHoliday ? "・祝" : ""}
